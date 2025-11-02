@@ -7,11 +7,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Import routes
-const postRoutes = require('./routes/posts');
-const categoryRoutes = require('./routes/categories');
-const authRoutes = require('./routes/auth');
-
 // Load environment variables
 dotenv.config();
 
@@ -35,6 +30,11 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
+// Import routes
+const postRoutes = require('./routes/posts');
+const categoryRoutes = require('./routes/categories');
+const authRoutes = require('./routes/auth');
+
 // API routes
 app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoutes);
@@ -56,23 +56,25 @@ app.use((err, req, res, next) => {
 
 // Connect to MongoDB and start server
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error('Failed to connect to MongoDB', err);
+    console.error('❌ Failed to connect to MongoDB:', err.message);
     process.exit(1);
   });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
-  // Close server & exit process
+  console.error('❌ Unhandled Promise Rejection:', err);
   process.exit(1);
 });
 
-module.exports = app; 
+module.exports = app;
