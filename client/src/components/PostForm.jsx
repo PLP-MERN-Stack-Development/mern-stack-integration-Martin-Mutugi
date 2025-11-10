@@ -1,113 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 
-function PostForm() {
-  const { id } = useParams(); // used for edit mode
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const PostForm = ({ post, onSubmit, onCancel }) => {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [category, setCategory] = useState('General');
 
-  // Fetch post if editing
   useEffect(() => {
-    if (id) {
-      fetch(`${import.meta.env.VITE_API_URL}/posts/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData({
-            title: data.post?.title || '',
-            content: data.post?.content || '',
-          });
-        })
-        .catch((err) => {
-          console.error('Error loading post:', err);
-          setError('Failed to load post.');
-        });
+    if (post) {
+      setTitle(post.title);
+      setContent(post.content);
+      setCategory(post.category);
     }
-  }, [id]);
+  }, [post]);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
-    // ✅ Validation before sending
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError('Title and content are required.');
-      return;
-    }
-
-    setLoading(true);
-
-    const method = id ? 'PUT' : 'POST';
-    const url = id
-      ? `${import.meta.env.VITE_API_URL}/posts/${id}`
-      : `${import.meta.env.VITE_API_URL}/posts`;
-
-    const token = localStorage.getItem('token'); // ✅ get token
-
-    try {
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // ✅ include token
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to save post');
-      }
-
-      navigate('/');
-    } catch (error) {
-      console.error('Error saving post:', error);
-      setError(error.message || 'Failed to save post.');
-    } finally {
-      setLoading(false);
-    }
+    if (!title.trim() || !content.trim()) return;
+    
+    onSubmit({
+      title: title.trim(),
+      content: content.trim(),
+      category: category.trim()
+    });
   };
 
   return (
-    <div>
-      <h2>{id ? 'Edit Post' : 'Create New Post'}</h2>
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-4">
+        {post ? 'Edit Post' : 'Create New Post'}
+      </h2>
+      
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Title</label>
         <input
           type="text"
-          name="title"
-          placeholder="Post Title"
-          value={formData.title}
-          onChange={handleChange}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
           required
         />
-        <br />
-        <textarea
-          name="content"
-          placeholder="Post Content"
-          value={formData.content}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : id ? 'Update Post' : 'Create Post'}
-        </button>
-      </form>
+      </div>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Category</label>
+        <input
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          placeholder="General"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">Content</label>
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows="6"
+          className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          required
+        />
+      </div>
+
+      <div className="flex space-x-4">
+        <button
+          type="submit"
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          {post ? 'Update Post' : 'Create Post'}
+        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
+    </form>
   );
-}
+};
 
 export default PostForm;

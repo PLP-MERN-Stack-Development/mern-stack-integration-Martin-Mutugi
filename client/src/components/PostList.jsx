@@ -1,41 +1,35 @@
-// client/src/components/PostList.jsx
+import React from 'react';
 
-import React, { useEffect, useState } from 'react';
-import { postService } from '../services/api';
-
-function PostList() {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchPosts() {
-      try {
-        const data = await postService.getAllPosts();
-        setPosts(data.posts || []);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchPosts();
-  }, []);
-
-  if (loading) return <p>Loading posts...</p>;
+const PostList = ({ posts, onEdit, onDelete }) => {
+  if (!posts || posts.length === 0) {
+    return <div className="text-center py-8">No posts found. Create your first post!</div>;
+  }
 
   return (
-    <div>
-      <h2>All Blog Posts</h2>
-      <ul>
-        {posts.map((post) => (
-          <li key={post._id}>
-            <strong>{post.title}</strong> — {post.excerpt || 'No excerpt'}
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-6">
+      {posts.map((post) => (
+        <div key={post._id} className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">{post.title}</h2>
+          <p className="text-gray-600 mb-2">Category: {post.category}</p>
+          <p className="text-gray-700 mb-4">{post.content}</p>
+          <div className="flex space-x-4">
+            <button
+              onClick={() => onEdit(post)}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete(post._id)}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default PostList;
