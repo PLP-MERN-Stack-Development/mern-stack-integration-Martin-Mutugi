@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
   
-  // Serve React app for all unknown routes
+  // Serve React app for all unknown routes - FIXED VERSION
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
