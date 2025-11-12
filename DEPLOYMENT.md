@@ -1,7 +1,7 @@
 # Deployment & Maintenance Guide
 
 ## 🚀 Live Applications
-- **Frontend:** https://my-blog-92h111pn3-martin-mutugis-projects.vercel.app/
+- **Frontend:** https://my-blog-lac-zeta.vercel.app/
 - **Backend:** https://my-blog-backend-ib6l.onrender.com/
 
 ## 📊 Monitoring
