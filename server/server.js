@@ -28,12 +28,15 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-// Health check route
+// Enhanced health check route
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: `${process.uptime().toFixed(2)} seconds`,
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
-    timestamp: new Date().toISOString()
+    memory: process.memoryUsage(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 // Error handling middleware
